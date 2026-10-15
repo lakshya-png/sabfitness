@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+@layer base {
+  :root,
+  .dark {
+    /* Deep cinematic navy/indigo canvas with mountain sunset backdrop */
+    --bg-page: #0a0e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    /* Cinematic Translucent Liquid Glass tokens - Deep Navy / Indigo */
+    --liquid-glass-bg: rgba(18, 22, 45, 0.58);
+    --liquid-glass-bg-hover: rgba(28, 34, 68, 0.72);
+    --liquid-glass-border: rgba(255, 255, 255, 0.12);
+    --liquid-glass-subtle-border: rgba(255, 255, 255, 0.08);
+    --liquid-glass-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.55), 0 2px 8px -2px rgba(0, 0, 0, 0.35);
+    --liquid-glass-shadow-hover: 0 24px 50px -10px rgba(0, 0, 0, 0.7);
+    --liquid-glass-inner-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Apple Liquid Frosted Glass Panels */
+.glass-panel {
+  background: var(--liquid-glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--liquid-glass-border);
+  box-shadow: var(--liquid-glass-inner-specular), var(--liquid-glass-shadow);
+  border-radius: 1.5rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card {
+  background: var(--liquid-glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--liquid-glass-subtle-border);
+  box-shadow: var(--liquid-glass-inner-specular), var(--liquid-glass-shadow);
+  border-radius: 1.25rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease;
+}
+
+.glass-card:hover {
+  background: var(--liquid-glass-bg-hover);
+  border-color: rgba(99, 102, 241, 0.22);
+  transform: translateY(-2px);
+  box-shadow: var(--liquid-glass-inner-specular), var(--liquid-glass-shadow-hover);
+}
+
+/* Fallback for browsers that do not support backdrop-filter */
+@supports not (backdrop-filter: blur(20px)) {
+  .glass-panel,
+  .glass-card {
+    background: rgba(15, 20, 42, 0.95);
+  }
+}
+
+/* Translucent Inputs */
+.glass-input {
+  background: rgba(13, 18, 38, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--liquid-glass-border);
+  border-radius: 0.875rem;
+  padding: 0.625rem 1rem;
+  color: #ffffff;
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.glass-input::placeholder {
+  color: #64748b;
+}
+
+.glass-input:focus {
+  border-color: #8b5cf6;
+  background: rgba(18, 25, 52, 0.85);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+/* Primary Refined Button (Purple-Violet Gradient) */
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  box-shadow: 0 4px 14px 0 rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Secondary Frosted Pill Button */
+.btn-secondary {
+  background: var(--liquid-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--liquid-glass-subtle-border);
+  color: var(--text-primary);
+  font-weight: 500;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  box-shadow: var(--liquid-glass-inner-specular), 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: var(--liquid-glass-bg-hover);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Restrained Purple-Blue Text Accent */
+.gradient-text {
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
