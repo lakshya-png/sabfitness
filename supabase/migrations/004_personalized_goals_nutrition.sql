@@ -1,8 +1,9 @@
-﻿-- SABFITNESS MIGRATION 004: PERSONALIZED GOAL WEIGHT & NUTRITION CALCULATOR
+-- SABFITNESS MIGRATION 004: PERSONALIZED GOAL WEIGHT & NUTRITION CALCULATOR
 -- Tagline: Your fitness journey. Your goals.
 
 -- 1. EXTEND PROFILES TABLE WITH PERSONALIZED GOAL ATTRIBUTES
 ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS age INTEGER,
   ADD COLUMN IF NOT EXISTS goal_weight_kg NUMERIC(6,2),
   ADD COLUMN IF NOT EXISTS workout_frequency_per_week INTEGER DEFAULT 4,
   ADD COLUMN IF NOT EXISTS dietary_restrictions TEXT,
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.goal_recommendation_history (
 -- 3. ROW LEVEL SECURITY (RLS) FOR RECOMMENDATION HISTORY
 ALTER TABLE public.goal_recommendation_history ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own goal recommendation history" ON public.goal_recommendation_history;
 CREATE POLICY "Users can manage own goal recommendation history"
   ON public.goal_recommendation_history FOR ALL
   USING (auth.uid() = user_id)

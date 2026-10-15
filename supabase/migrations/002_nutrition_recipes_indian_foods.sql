@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS public.custom_foods (
 
 ALTER TABLE public.custom_foods ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own custom foods" ON public.custom_foods;
 CREATE POLICY "Users can manage own custom foods"
   ON public.custom_foods FOR ALL
   USING (auth.uid() = user_id)
@@ -52,11 +53,13 @@ CREATE TABLE IF NOT EXISTS public.recipes (
 
 ALTER TABLE public.recipes ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own recipes" ON public.recipes;
 CREATE POLICY "Users can manage own recipes"
   ON public.recipes FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view public recipes" ON public.recipes;
 CREATE POLICY "Users can view public recipes"
   ON public.recipes FOR SELECT
   USING (is_public = TRUE);
@@ -81,6 +84,7 @@ CREATE TABLE IF NOT EXISTS public.recipe_ingredients (
 
 ALTER TABLE public.recipe_ingredients ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage ingredients through recipe ownership" ON public.recipe_ingredients;
 CREATE POLICY "Users can manage ingredients through recipe ownership"
   ON public.recipe_ingredients FOR ALL
   USING (EXISTS (SELECT 1 FROM public.recipes r WHERE r.id = recipe_id AND r.user_id = auth.uid()))
@@ -99,6 +103,7 @@ CREATE TABLE IF NOT EXISTS public.meal_templates (
 
 ALTER TABLE public.meal_templates ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own meal templates" ON public.meal_templates;
 CREATE POLICY "Users can manage own meal templates"
   ON public.meal_templates FOR ALL
   USING (auth.uid() = user_id)

@@ -38,13 +38,20 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 CREATE POLICY "Users can read own profile"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+CREATE POLICY "Users can insert own profile"
+  ON public.profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
 
 -- Public registration trigger cannot elevate to admin
@@ -78,6 +85,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Trigger to create profile automatically on auth.users signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- 3. FITNESS GOALS HISTORY
 -- Changing fitness goals must NEVER delete historical data
 CREATE TABLE IF NOT EXISTS public.fitness_goals_history (
@@ -93,10 +106,12 @@ CREATE TABLE IF NOT EXISTS public.fitness_goals_history (
 
 ALTER TABLE public.fitness_goals_history ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own goal history" ON public.fitness_goals_history;
 CREATE POLICY "Users can view own goal history"
   ON public.fitness_goals_history FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert goal history" ON public.fitness_goals_history;
 CREATE POLICY "Users can insert goal history"
   ON public.fitness_goals_history FOR INSERT
   WITH CHECK (auth.uid() = user_id);
@@ -119,6 +134,7 @@ CREATE TABLE IF NOT EXISTS public.workouts (
 
 ALTER TABLE public.workouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own workouts" ON public.workouts;
 CREATE POLICY "Users can manage own workouts"
   ON public.workouts FOR ALL
   USING (auth.uid() = user_id)
@@ -139,6 +155,7 @@ CREATE TABLE IF NOT EXISTS public.workout_exercises (
 
 ALTER TABLE public.workout_exercises ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage exercises through workout ownership" ON public.workout_exercises;
 CREATE POLICY "Users can manage exercises through workout ownership"
   ON public.workout_exercises FOR ALL
   USING (EXISTS (SELECT 1 FROM public.workouts WHERE id = workout_id AND user_id = auth.uid()))
@@ -160,6 +177,7 @@ CREATE TABLE IF NOT EXISTS public.workout_sets (
 
 ALTER TABLE public.workout_sets ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage sets through workout ownership" ON public.workout_sets;
 CREATE POLICY "Users can manage sets through workout ownership"
   ON public.workout_sets FOR ALL
   USING (EXISTS (
@@ -194,6 +212,7 @@ CREATE TABLE IF NOT EXISTS public.food_entries (
 
 ALTER TABLE public.food_entries ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own food entries" ON public.food_entries;
 CREATE POLICY "Users can manage own food entries"
   ON public.food_entries FOR ALL
   USING (auth.uid() = user_id)
@@ -210,6 +229,7 @@ CREATE TABLE IF NOT EXISTS public.water_logs (
 
 ALTER TABLE public.water_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own water logs" ON public.water_logs;
 CREATE POLICY "Users can manage own water logs"
   ON public.water_logs FOR ALL
   USING (auth.uid() = user_id)
@@ -231,6 +251,7 @@ CREATE TABLE IF NOT EXISTS public.supplements (
 
 ALTER TABLE public.supplements ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own supplements" ON public.supplements;
 CREATE POLICY "Users can manage own supplements"
   ON public.supplements FOR ALL
   USING (auth.uid() = user_id)
@@ -248,6 +269,7 @@ CREATE TABLE IF NOT EXISTS public.supplement_logs (
 
 ALTER TABLE public.supplement_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own supplement logs" ON public.supplement_logs;
 CREATE POLICY "Users can manage own supplement logs"
   ON public.supplement_logs FOR ALL
   USING (auth.uid() = user_id)
@@ -273,6 +295,7 @@ CREATE TABLE IF NOT EXISTS public.body_measurements (
 
 ALTER TABLE public.body_measurements ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own measurements" ON public.body_measurements;
 CREATE POLICY "Users can manage own measurements"
   ON public.body_measurements FOR ALL
   USING (auth.uid() = user_id)
@@ -292,6 +315,7 @@ CREATE TABLE IF NOT EXISTS public.progress_photos (
 
 ALTER TABLE public.progress_photos ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own progress photos" ON public.progress_photos;
 CREATE POLICY "Users can manage own progress photos"
   ON public.progress_photos FOR ALL
   USING (auth.uid() = user_id)
@@ -318,10 +342,12 @@ CREATE TABLE IF NOT EXISTS public.friendships (
 
 ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own friendships" ON public.friendships;
 CREATE POLICY "Users can read own friendships"
   ON public.friendships FOR SELECT
   USING (auth.uid() = user_id OR auth.uid() = friend_id);
 
+DROP POLICY IF EXISTS "Users can manage friendships" ON public.friendships;
 CREATE POLICY "Users can manage friendships"
   ON public.friendships FOR ALL
   USING (auth.uid() = user_id OR auth.uid() = friend_id)
@@ -344,6 +370,7 @@ CREATE TABLE IF NOT EXISTS public.progress_cards (
 
 ALTER TABLE public.progress_cards ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own progress cards" ON public.progress_cards;
 CREATE POLICY "Users can manage own progress cards"
   ON public.progress_cards FOR ALL
   USING (auth.uid() = user_id)
@@ -363,6 +390,7 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own notifications" ON public.notifications;
 CREATE POLICY "Users can manage own notifications"
   ON public.notifications FOR ALL
   USING (auth.uid() = user_id)
@@ -384,6 +412,12 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Only verified owner admin can read audit logs
+DROP POLICY IF EXISTS "Only admins can view audit logs" ON public.audit_logs;
 CREATE POLICY "Only admins can view audit logs"
   ON public.audit_logs FOR SELECT
   USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = TRUE));
+
+DROP POLICY IF EXISTS "Users can insert own audit logs" ON public.audit_logs;
+CREATE POLICY "Users can insert own audit logs"
+  ON public.audit_logs FOR INSERT
+  WITH CHECK (auth.uid() = actor_id);
