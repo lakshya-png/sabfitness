@@ -2,7 +2,10 @@
 -- SABFITNESS CONSOLIDATED DATABASE RECOVERY SCRIPT
 -- Safe for: Existing partially migrated Supabase PostgreSQL database
 -- Non-destructive: No DROP TABLE, no data deletion, strict RLS preserved
+-- Fully Atomic: Wrapped in BEGIN / COMMIT transaction block
 -- =====================================================================
+
+BEGIN;
 
 -- ---------------------------------------------------------------------
 -- 1. EXTENSIONS & PROFILE SCHEMA REPAIR
@@ -67,6 +70,7 @@ CREATE POLICY "Users can insert own profile"
   WITH CHECK (auth.uid() = id);
 
 -- Auth Trigger Function: provisions profile upon user signup
+-- Hardened with explicit search_path, unique invite collision guard, and ON CONFLICT handling
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -74,9 +78,13 @@ DECLARE
   chars TEXT := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   i INTEGER;
 BEGIN
-  new_invite_code := 'SAB-';
-  FOR i IN 1..6 LOOP
-    new_invite_code := new_invite_code || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+  -- Generate guaranteed-unique invite code
+  LOOP
+    new_invite_code := 'SAB-';
+    FOR i IN 1..6 LOOP
+      new_invite_code := new_invite_code || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+    END LOOP;
+    EXIT WHEN NOT EXISTS (SELECT 1 FROM public.profiles WHERE invite_code = new_invite_code);
   END LOOP;
 
   INSERT INTO public.profiles (
@@ -87,14 +95,16 @@ BEGIN
     is_admin
   ) VALUES (
     NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.email, ''),
+    COALESCE(NEW.raw_user_meta_data->>'name', split_part(COALESCE(NEW.email, 'athlete'), '@', 1)),
     new_invite_code,
     FALSE
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;
+
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -670,3 +680,5 @@ CREATE POLICY "Users can manage own goal recommendation history"
 
 CREATE INDEX IF NOT EXISTS idx_goal_rec_user_date
   ON public.goal_recommendation_history(user_id, effective_date DESC, created_at DESC);
+
+COMMIT;
