@@ -202,8 +202,8 @@ export function calculatePersonalizedNutrition(
   // Fat: 25% to 30% of total calories (minimum 0.7g/kg for hormonal health)
   const minFatGrams = Math.round(weightKg * 0.7);
   const fatCaloriesRaw = targetCalories * 0.27;
-  let fatGrams = Math.max(minFatGrams, Math.round(fatCaloriesRaw / 9));
-  let fatCalories = fatGrams * 9;
+  const fatGrams = Math.max(minFatGrams, Math.round(fatCaloriesRaw / 9));
+  const fatCalories = fatGrams * 9;
 
   // Carbohydrates: remaining calories (guaranteeing exact mathematical internal consistency)
   const remainingCaloriesForCarbs = Math.max(160, targetCalories - proteinCalories - fatCalories);

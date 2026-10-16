@@ -19,8 +19,10 @@ import {
   AlertTriangle,
   ArrowRight,
   ShieldCheck,
+  LogOut,
 } from "lucide-react";
-import { localStore } from "@/lib/storage/localState";
+import { localStore, CLEAN_NEW_USER } from "@/lib/storage/localState";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { FITNESS_GOALS, type FitnessGoalType, type UnitSystem } from "@/types/user";
 import { calculatePersonalizedTargets } from "@/lib/fitness/calculations";
 import { useTheme } from "@/components/common/ClientProviders";
@@ -129,6 +131,19 @@ export default function SettingsPage() {
     }
     localStore.deleteAccount();
     router.push("/onboarding");
+  };
+
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured && supabase) {
+      await supabase.auth.signOut();
+    }
+    localStore.saveUser({
+      ...CLEAN_NEW_USER,
+      email: "",
+      name: "",
+    });
+    document.cookie = "sabfitness_session=; path=/; max-age=0";
+    router.replace("/login");
   };
 
   return (
@@ -363,6 +378,24 @@ export default function SettingsPage() {
           >
             <Download className="w-4 h-4 text-violet-600" />
             <span>Download All Data</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
+          <div>
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+              Sign Out of Account
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Securely sign out of this device. Your data remains safely synchronized.
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-semibold transition-colors shrink-0 flex items-center gap-1.5"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
           </button>
         </div>
 

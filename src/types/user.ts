@@ -112,6 +112,9 @@ export interface UserProfile {
   dailyProteinTargetGrams: number;
   dailyCarbsTargetGrams: number;
   dailyFatTargetGrams: number;
+  fullName?: string;
+  fitnessGoal?: string;
+  targetWeightKg?: number;
   activeRecommendationVersion?: string;
   streakDays?: number;
   createdAt: string;

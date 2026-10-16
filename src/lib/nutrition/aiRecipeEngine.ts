@@ -442,7 +442,7 @@ export function groundRecipeDraft(
   const fatPerServing = Math.round((roundedTotals.totalFatGrams / safeServings) * 10) / 10;
   const fiberPerServing = Math.round(((roundedTotals.totalFiberGrams || 0) / safeServings) * 10) / 10;
 
-  let cookedWeightGrams = draft.cookedWeightGrams;
+  const cookedWeightGrams = draft.cookedWeightGrams;
   let caloriesPer100gCooked: number | undefined;
   let proteinPer100gCooked: number | undefined;
   let carbsPer100gCooked: number | undefined;

@@ -97,7 +97,7 @@ export default function WelcomePage() {
           </button>
 
           <Link
-            href="/auth/login"
+            href="/login"
             className="px-4 py-2 rounded-full text-xs font-semibold bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200/70 dark:border-white/10 text-slate-800 dark:text-white hover:bg-white/90 dark:hover:bg-slate-700/80 transition-all shadow-sm"
           >
             Sign In
@@ -240,7 +240,7 @@ export default function WelcomePage() {
           <Link href="/settings" className="hover:text-indigo-600 dark:hover:text-indigo-400">
             Privacy &amp; Security
           </Link>
-          <Link href="/auth/login" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+          <Link href="/login" className="hover:text-indigo-600 dark:hover:text-indigo-400">
             Sign In
           </Link>
         </div>

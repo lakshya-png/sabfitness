@@ -2,9 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClientProviders } from "@/components/common/ClientProviders";
-import { Sidebar } from "@/components/navigation/Sidebar";
-import { Header } from "@/components/navigation/Header";
-import { MobileNav } from "@/components/navigation/MobileNav";
+import { AppShell } from "@/components/common/AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,21 +70,7 @@ export default function RootLayout({
         </div>
 
         <ClientProviders>
-          <div className="flex min-h-screen">
-            {/* Desktop Navigation Sidebar */}
-            <Sidebar />
-
-            {/* Main Application Area */}
-            <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
-              <Header />
-              <main className="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
-                {children}
-              </main>
-            </div>
-          </div>
-
-          {/* Mobile Fixed Bottom Navigation */}
-          <MobileNav />
+          <AppShell>{children}</AppShell>
         </ClientProviders>
       </body>
     </html>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Dumbbell,
@@ -21,16 +21,32 @@ import {
   ChevronRight,
   User,
   Target,
+  LogOut,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { localStore } from "@/lib/storage/localState";
+import { localStore, CLEAN_NEW_USER } from "@/lib/storage/localState";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useTheme } from "@/components/common/ClientProviders";
 import type { UserProfile } from "@/types/user";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { resolvedTheme, toggleTheme } = useTheme();
   const [user, setUser] = useState<UserProfile | null>(null);
+
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured && supabase) {
+      await supabase.auth.signOut();
+    }
+    localStore.saveUser({
+      ...CLEAN_NEW_USER,
+      email: "",
+      name: "",
+    });
+    document.cookie = "sabfitness_session=; path=/; max-age=0";
+    router.replace("/login");
+  };
 
   useEffect(() => {
     setUser(localStore.getUser());
@@ -155,6 +171,16 @@ export function Sidebar() {
             />
           </button>
         </div>
+
+        {/* Sign Out Button */}
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out</span>
+        </button>
       </div>
     </aside>
   );
